@@ -15,3 +15,4 @@ wheels/
 
 # Ignore Project artifacts
 *.index
+data/
