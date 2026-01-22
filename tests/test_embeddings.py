@@ -2,18 +2,15 @@
 Tests for embeddings module.
 """
 
-import tempfile
-from pathlib import Path
-
 import numpy as np
 import pytest
 from PIL import Image
 
 from src.lib.embeddings import (
+    SUPPORTED_FORMATS,
     batch_image_to_embeddings,
     get_image_paths,
     image_to_embedding,
-    SUPPORTED_FORMATS,
 )
 
 
@@ -21,7 +18,7 @@ class TestSupportedFormats:
     """Test SUPPORTED_FORMATS constant."""
 
     def test_supported_formats_includes_common_formats(self):
-        expected = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff', '.gif']
+        expected = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".gif"]
         for fmt in expected:
             assert fmt in SUPPORTED_FORMATS
 
@@ -142,10 +139,12 @@ class TestImageToEmbedding:
         model = MockModel()
         model.eval()
 
-        preprocess = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-        ])
+        preprocess = transforms.Compose(
+            [
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+            ]
+        )
 
         device = torch.device("cpu")
 
@@ -212,10 +211,12 @@ class TestBatchImageToEmbeddings:
         model = MockModel()
         model.eval()
 
-        preprocess = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-        ])
+        preprocess = transforms.Compose(
+            [
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+            ]
+        )
 
         device = torch.device("cpu")
 

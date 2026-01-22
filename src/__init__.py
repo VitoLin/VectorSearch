@@ -5,8 +5,6 @@ This package provides tools for building image vector databases and
 searching for similar images using Concept Activation Vectors.
 """
 
-from src.lib.models import setup_model
-from src.lib.embeddings import get_image_paths, image_to_embedding, batch_image_to_embeddings
 from src.lib.cav import (
     compute_cav,
     compute_cav_from_images,
@@ -16,7 +14,9 @@ from src.lib.cav import (
     normalize_cav,
     normalize_word_cav,
 )
+from src.lib.embeddings import batch_image_to_embeddings, get_image_paths, image_to_embedding
 from src.lib.faiss_db import ImageVectorDB
+from src.lib.models import setup_model
 
 __all__ = [
     "setup_model",

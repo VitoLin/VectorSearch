@@ -5,8 +5,9 @@ Consolidated Concept Activation Vector (CAV) utilities.
 This module provides tools for computing CAVs from both images and words.
 """
 
+from collections.abc import Callable
+
 import numpy as np
-from typing import List, Callable, Optional
 
 
 def normalize_cav(cav):
@@ -68,7 +69,7 @@ def get_similarity_scores(cav, embeddings):
     return scores
 
 
-def vectorize_words(model, words: List[str]) -> np.ndarray:
+def vectorize_words(model, words: list[str]) -> np.ndarray:
     """
     Convert words to embeddings using a sentence transformer model.
 
@@ -79,10 +80,10 @@ def vectorize_words(model, words: List[str]) -> np.ndarray:
     Returns:
         numpy array of shape (len(words), embedding_dim)
     """
-    return model.encode(words, convert_to_numpy=True)
+    return model.encode(words, convert_to_numpy=True)  # type: ignore[no-any-return]
 
 
-def vectorize_images(image_paths: List[str], image_to_embedding_fn: Callable) -> np.ndarray:
+def vectorize_images(image_paths: list[str], image_to_embedding_fn: Callable) -> np.ndarray:
     """
     Convert image paths to embeddings using a provided embedding function.
 
@@ -98,6 +99,7 @@ def vectorize_images(image_paths: List[str], image_to_embedding_fn: Callable) ->
 
 
 # Backward compatibility wrappers
+
 
 def compute_cav_from_images(positive_image_paths, negative_image_paths, image_to_embedding_fn):
     """
@@ -124,7 +126,7 @@ def compute_cav_from_images(positive_image_paths, negative_image_paths, image_to
     return compute_cav(pos_embs, neg_embs)
 
 
-def compute_word_cav(model, pos_words: List[str], neg_words: List[str]):
+def compute_word_cav(model, pos_words: list[str], neg_words: list[str]):
     """
     Compute CAV from word lists using a sentence transformer model.
 
@@ -157,7 +159,7 @@ def get_image_similarity_scores(cav, image_embeddings):
     return get_similarity_scores(cav, image_embeddings)
 
 
-def get_word_similarity_score(model, cav, words: List[str]):
+def get_word_similarity_score(model, cav, words: list[str]):
     """
     Score words based on their similarity to a CAV.
 

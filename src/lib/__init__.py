@@ -11,7 +11,7 @@ from .cav import (
     normalize_cav,
     normalize_word_cav,
 )
-from .embeddings import get_image_paths, image_to_embedding, batch_image_to_embeddings
+from .embeddings import batch_image_to_embeddings, get_image_paths, image_to_embedding
 from .faiss_db import ImageVectorDB
 from .models import setup_model
 

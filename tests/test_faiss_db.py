@@ -2,7 +2,6 @@
 Tests for FAISS vector database module.
 """
 
-import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -32,10 +31,10 @@ class TestImageVectorDBBuildIndex:
 
     def test_build_index_with_ip_metric(self):
         db = ImageVectorDB()
-        embeddings = np.random.rand(5, 10).astype('float32')
+        embeddings = np.random.rand(5, 10).astype("float32")
         image_paths = [f"img{i}.jpg" for i in range(5)]
 
-        index = db.build_index(embeddings, image_paths, metric='ip')
+        index = db.build_index(embeddings, image_paths, metric="ip")
 
         assert index is not None
         assert index.ntotal == 5
@@ -44,10 +43,10 @@ class TestImageVectorDBBuildIndex:
 
     def test_build_index_with_l2_metric(self):
         db = ImageVectorDB()
-        embeddings = np.random.rand(5, 10).astype('float32')
+        embeddings = np.random.rand(5, 10).astype("float32")
         image_paths = [f"img{i}.jpg" for i in range(5)]
 
-        index = db.build_index(embeddings, image_paths, metric='l2')
+        index = db.build_index(embeddings, image_paths, metric="l2")
 
         assert index is not None
         assert index.ntotal == 5
@@ -55,37 +54,37 @@ class TestImageVectorDBBuildIndex:
 
     def test_build_index_invalid_metric(self):
         db = ImageVectorDB()
-        embeddings = np.random.rand(5, 10).astype('float32')
+        embeddings = np.random.rand(5, 10).astype("float32")
         image_paths = [f"img{i}.jpg" for i in range(5)]
 
         with pytest.raises(ValueError, match="Unknown metric"):
-            db.build_index(embeddings, image_paths, metric='invalid')
+            db.build_index(embeddings, image_paths, metric="invalid")
 
     def test_build_index_converts_paths_to_strings(self):
         db = ImageVectorDB()
-        embeddings = np.random.rand(3, 10).astype('float32')
+        embeddings = np.random.rand(3, 10).astype("float32")
         image_paths = [Path(f"img{i}.jpg") for i in range(3)]
 
-        db.build_index(embeddings, image_paths, metric='ip')
+        db.build_index(embeddings, image_paths, metric="ip")
 
         for path in db.image_paths:
             assert isinstance(path, str)
 
     def test_build_index_sets_dimension(self):
         db = ImageVectorDB()
-        embeddings = np.random.rand(5, 20).astype('float32')
+        embeddings = np.random.rand(5, 20).astype("float32")
         image_paths = [f"img{i}.jpg" for i in range(5)]
 
-        db.build_index(embeddings, image_paths, metric='ip')
+        db.build_index(embeddings, image_paths, metric="ip")
 
         assert db.dim == 20
 
     def test_build_index_empty_embeddings(self):
         db = ImageVectorDB()
-        embeddings = np.array([]).reshape(0, 10).astype('float32')
+        embeddings = np.array([]).reshape(0, 10).astype("float32")
         image_paths = []
 
-        db.build_index(embeddings, image_paths, metric='ip')
+        db.build_index(embeddings, image_paths, metric="ip")
 
         assert db.index.ntotal == 0
 
@@ -98,16 +97,19 @@ class TestImageVectorDBSearch:
         """Create a populated database for testing."""
         db = ImageVectorDB()
 
-        embeddings = np.array([
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-            [0.0, 0.0, 1.0],
-            [0.5, 0.5, 0.5],
-        ], dtype='float32')
+        embeddings = np.array(
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+                [0.5, 0.5, 0.5],
+            ],
+            dtype="float32",
+        )
 
         image_paths = ["img1.jpg", "img2.jpg", "img3.jpg", "img4.jpg"]
 
-        db.build_index(embeddings, image_paths, metric='ip')
+        db.build_index(embeddings, image_paths, metric="ip")
         return db
 
     def test_search_without_building_index(self):
@@ -177,10 +179,10 @@ class TestImageVectorDBSave:
 
     def test_save_creates_files(self, tmp_path):
         db = ImageVectorDB()
-        embeddings = np.random.rand(3, 10).astype('float32')
+        embeddings = np.random.rand(3, 10).astype("float32")
         image_paths = ["img1.jpg", "img2.jpg", "img3.jpg"]
 
-        db.build_index(embeddings, image_paths, metric='ip')
+        db.build_index(embeddings, image_paths, metric="ip")
 
         prefix = tmp_path / "test_db"
         db.save(prefix)
@@ -190,10 +192,10 @@ class TestImageVectorDBSave:
 
     def test_save_with_str_prefix(self, tmp_path):
         db = ImageVectorDB()
-        embeddings = np.random.rand(3, 10).astype('float32')
+        embeddings = np.random.rand(3, 10).astype("float32")
         image_paths = ["img1.jpg", "img2.jpg", "img3.jpg"]
 
-        db.build_index(embeddings, image_paths, metric='ip')
+        db.build_index(embeddings, image_paths, metric="ip")
 
         prefix = str(tmp_path / "test_db")
         db.save(prefix)
@@ -208,10 +210,10 @@ class TestImageVectorDBLoad:
     def test_load_creates_index(self, tmp_path):
         # First save a database
         db1 = ImageVectorDB()
-        embeddings = np.random.rand(3, 10).astype('float32')
+        embeddings = np.random.rand(3, 10).astype("float32")
         image_paths = ["img1.jpg", "img2.jpg", "img3.jpg"]
 
-        db1.build_index(embeddings, image_paths, metric='ip')
+        db1.build_index(embeddings, image_paths, metric="ip")
         prefix = tmp_path / "test_db"
         db1.save(prefix)
 
@@ -226,10 +228,10 @@ class TestImageVectorDBLoad:
     def test_load_restores_image_paths(self, tmp_path):
         # First save a database
         db1 = ImageVectorDB()
-        embeddings = np.random.rand(3, 10).astype('float32')
+        embeddings = np.random.rand(3, 10).astype("float32")
         image_paths = ["img1.jpg", "img2.jpg", "img3.jpg"]
 
-        db1.build_index(embeddings, image_paths, metric='ip')
+        db1.build_index(embeddings, image_paths, metric="ip")
         prefix = tmp_path / "test_db"
         db1.save(prefix)
 
@@ -253,6 +255,7 @@ class TestImageVectorDBLoad:
         # Create only paths file
         with open(f"{prefix}_paths.pkl", "wb") as f:
             import pickle
+
             pickle.dump([], f)
 
         with pytest.raises(FileNotFoundError):
@@ -264,6 +267,7 @@ class TestImageVectorDBLoad:
 
         # Create only index file
         import faiss
+
         index = faiss.IndexFlatIP(10)
         faiss.write_index(index, f"{prefix}.faiss")
 
@@ -273,13 +277,16 @@ class TestImageVectorDBLoad:
     def test_roundtrip_save_and_load(self, tmp_path):
         # Create database and search
         db1 = ImageVectorDB()
-        embeddings = np.array([
-            [1.0, 0.0],
-            [0.0, 1.0],
-        ], dtype='float32')
+        embeddings = np.array(
+            [
+                [1.0, 0.0],
+                [0.0, 1.0],
+            ],
+            dtype="float32",
+        )
         image_paths = ["img1.jpg", "img2.jpg"]
 
-        db1.build_index(embeddings, image_paths, metric='ip')
+        db1.build_index(embeddings, image_paths, metric="ip")
         original_results = db1.search(np.array([1.0, 0.0]), k=2)
 
         # Save and load
@@ -292,6 +299,8 @@ class TestImageVectorDBLoad:
 
         # Results should be identical
         assert len(original_results) == len(loaded_results)
-        for (orig_path, orig_score), (load_path, load_score) in zip(original_results, loaded_results):
+        for (orig_path, orig_score), (load_path, load_score) in zip(
+            original_results, loaded_results
+        ):
             assert orig_path == load_path
             assert np.isclose(orig_score, load_score)

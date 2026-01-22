@@ -15,10 +15,10 @@ Usage:
 
 import argparse
 
-from src.lib.models import setup_model
-from src.lib.embeddings import get_image_paths, image_to_embedding, batch_image_to_embeddings
 from src.lib.cav import compute_cav_from_images, normalize_cav
+from src.lib.embeddings import batch_image_to_embeddings, get_image_paths, image_to_embedding
 from src.lib.faiss_db import ImageVectorDB
+from src.lib.models import setup_model
 
 
 def cmd_build_db(args):
@@ -38,13 +38,11 @@ def cmd_build_db(args):
 
     # Generate embeddings
     print("\nGenerating embeddings...")
-    embeddings = batch_image_to_embeddings(
-        image_paths, model, preprocess, device, args.batch_size
-    )
+    embeddings = batch_image_to_embeddings(image_paths, model, preprocess, device, args.batch_size)
 
     # Build index
     db = ImageVectorDB()
-    db.build_index(embeddings, image_paths, metric='ip')
+    db.build_index(embeddings, image_paths, metric="ip")
 
     # Save
     db.save(args.output)
@@ -109,7 +107,7 @@ def cmd_search(args):
     print(f"\nTop {len(results)} results:")
     print("-" * 60)
     for i, (path, score) in enumerate(results, 1):
-        filename = path.split('/')[-1]
+        filename = path.split("/")[-1]
         print(f"{i}. {filename:40s} -> {score:8.6f}")
 
     print("\n" + "=" * 60)
@@ -118,67 +116,44 @@ def cmd_search(args):
 
     # Optional: Save results to file
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             for path, score in results:
                 f.write(f"{path}\t{score}\n")
         print(f"\nResults saved to {args.output}")
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Image similarity search using CAV and FAISS"
-    )
-    subparsers = parser.add_subparsers(dest='command', required=True)
+    parser = argparse.ArgumentParser(description="Image similarity search using CAV and FAISS")
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Build database command
-    build_parser = subparsers.add_parser('build-db', help='Build FAISS index from images')
+    build_parser = subparsers.add_parser("build-db", help="Build FAISS index from images")
+    build_parser.add_argument("--folder", required=True, help="Folder containing images to index")
     build_parser.add_argument(
-        '--folder',
-        required=True,
-        help='Folder containing images to index'
+        "--output", default="image_db", help="Output prefix for index files (default: image_db)"
     )
     build_parser.add_argument(
-        '--output',
-        default='image_db',
-        help='Output prefix for index files (default: image_db)'
-    )
-    build_parser.add_argument(
-        '--batch-size',
+        "--batch-size",
         type=int,
         default=32,
-        help='Batch size for embedding generation (default: 32)'
+        help="Batch size for embedding generation (default: 32)",
     )
     build_parser.set_defaults(func=cmd_build_db)
 
     # Search command
-    search_parser = subparsers.add_parser('search', help='Search for similar images')
+    search_parser = subparsers.add_parser("search", help="Search for similar images")
     search_parser.add_argument(
-        '--query',
-        help='Folder containing query images (or combined pos+neg)'
+        "--query", help="Folder containing query images (or combined pos+neg)"
+    )
+    search_parser.add_argument("--query-positive", help="Folder containing positive example images")
+    search_parser.add_argument("--query-negative", help="Folder containing negative example images")
+    search_parser.add_argument(
+        "--db", required=True, help="Prefix of saved database (e.g., image_db)"
     )
     search_parser.add_argument(
-        '--query-positive',
-        help='Folder containing positive example images'
+        "--k", type=int, default=10, help="Number of results to return (default: 10)"
     )
-    search_parser.add_argument(
-        '--query-negative',
-        help='Folder containing negative example images'
-    )
-    search_parser.add_argument(
-        '--db',
-        required=True,
-        help='Prefix of saved database (e.g., image_db)'
-    )
-    search_parser.add_argument(
-        '--k',
-        type=int,
-        default=10,
-        help='Number of results to return (default: 10)'
-    )
-    search_parser.add_argument(
-        '--output',
-        help='Optional: Save results to file'
-    )
+    search_parser.add_argument("--output", help="Optional: Save results to file")
     search_parser.set_defaults(func=cmd_search)
 
     args = parser.parse_args()

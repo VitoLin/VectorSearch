@@ -3,7 +3,6 @@ Tests for CAV (Concept Activation Vector) module.
 """
 
 import numpy as np
-import pytest
 
 from src.lib.cav import (
     compute_cav,
@@ -93,7 +92,9 @@ class TestComputeCavFromImages:
     def test_compute_cav_from_images_with_negatives(self):
         pos_paths = ["img1.jpg", "img2.jpg"]
         neg_paths = ["img3.jpg"]
-        mock_fn = lambda p: np.array([1.0, 0.0]) if "img1" in p or "img2" in p else np.array([-1.0, 0.0])
+        mock_fn = (
+            lambda p: np.array([1.0, 0.0]) if "img1" in p or "img2" in p else np.array([-1.0, 0.0])
+        )
         cav = compute_cav_from_images(pos_paths, neg_paths, mock_fn)
         assert cav.shape == (2,)
 

@@ -22,7 +22,39 @@ dependencies = [
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.14.0",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "W"]
+ignore = [
+    "E501",  # Line too long - handled by formatter
+    "E741",  # Ambiguous variable name (e.g., 'I' for FAISS indices)
+]
+exclude = ["examples/"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E731"]  # Lambdas are acceptable in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = false
+show_error_codes = true
+ignore_missing_imports = true
+exclude = ["examples/"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

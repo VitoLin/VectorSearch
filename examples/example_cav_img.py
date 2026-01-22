@@ -7,13 +7,14 @@ images are to a concept (e.g., "dog-ness" vs cats).
 """
 
 import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-import torch
-from torchvision import transforms, models
-from PIL import Image
-import numpy as np
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import faiss
+import numpy as np
+import torch
+from PIL import Image
+from torchvision import models, transforms
 
 
 def setup_model(device=None):
@@ -24,7 +25,8 @@ def setup_model(device=None):
     print(f"Using device: {device}")
 
     try:
-        from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
+        from torchvision.models import MobileNet_V2_Weights, mobilenet_v2
+
         model = mobilenet_v2(weights=MobileNet_V2_Weights.IMAGENET1K_V1)
     except Exception:
         model = models.mobilenet_v2(pretrained=True)
@@ -32,13 +34,14 @@ def setup_model(device=None):
     model.classifier = torch.nn.Identity()  # type: ignore
     model.eval().to(device)
 
-    preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225]),
-    ])
+    preprocess = transforms.Compose(
+        [
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
     return model, preprocess, device
 
@@ -49,7 +52,7 @@ def image_to_embedding(path, model, preprocess, device):
     x = preprocess(img).unsqueeze(0).to(device)
     with torch.no_grad():
         feat = model(x)
-    feat = feat.cpu().numpy().astype('float32').squeeze(0)
+    feat = feat.cpu().numpy().astype("float32").squeeze(0)
     feat /= np.linalg.norm(feat) + 1e-10
     return feat
 
@@ -85,7 +88,10 @@ def build_faiss_index(image_paths, model, preprocess, device, dim=1280):
     """Build FAISS index for fast similarity search."""
     index = faiss.IndexFlatIP(dim)  # type: ignore
 
-    image_embs = np.array([image_to_embedding(path, model, preprocess, device) for path in image_paths], dtype='float32')
+    image_embs = np.array(
+        [image_to_embedding(path, model, preprocess, device) for path in image_paths],
+        dtype="float32",
+    )
     index.add(image_embs)  # type: ignore
 
     return index
@@ -126,7 +132,7 @@ def main():
     index = build_faiss_index(all_images, model, preprocess, device, dim)
     print(f"FAISS index built with {index.ntotal} vectors (dim={dim})")
 
-    query_vec = cav_norm.reshape(1, -1).astype('float32')
+    query_vec = cav_norm.reshape(1, -1).astype("float32")
     k = len(all_images)
     distances, indices = index.search(query_vec, k)  # type: ignore
 

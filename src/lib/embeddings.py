@@ -3,13 +3,13 @@
 Image to embedding conversion with multi-format support.
 """
 
+from pathlib import Path
+
 import numpy as np
 import torch
-from pathlib import Path
 from PIL import Image
 
-
-SUPPORTED_FORMATS = ('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff', '.gif')
+SUPPORTED_FORMATS = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".gif")
 
 
 def get_image_paths(folder_path):
@@ -26,10 +26,7 @@ def get_image_paths(folder_path):
     if not folder.exists():
         raise FileNotFoundError(f"Folder not found: {folder_path}")
 
-    images = [
-        p for p in folder.glob('*')
-        if p.suffix.lower() in SUPPORTED_FORMATS
-    ]
+    images = [p for p in folder.glob("*") if p.suffix.lower() in SUPPORTED_FORMATS]
 
     print(f"Found {len(images)} images in {folder_path}")
     return sorted(images)
@@ -54,7 +51,7 @@ def image_to_embedding(image_path, model, preprocess, device):
     with torch.no_grad():
         feat = model(x)
 
-    feat = feat.cpu().numpy().astype('float32').squeeze(0)
+    feat = feat.cpu().numpy().astype("float32").squeeze(0)
     feat /= np.linalg.norm(feat) + 1e-10  # L2-normalize for cosine similarity
 
     return feat
@@ -77,14 +74,11 @@ def batch_image_to_embeddings(image_paths, model, preprocess, device, batch_size
     all_embs = []
 
     for i in range(0, len(image_paths), batch_size):
-        batch_paths = image_paths[i:i + batch_size]
-        batch_embs = [
-            image_to_embedding(p, model, preprocess, device)
-            for p in batch_paths
-        ]
+        batch_paths = image_paths[i : i + batch_size]
+        batch_embs = [image_to_embedding(p, model, preprocess, device) for p in batch_paths]
         all_embs.extend(batch_embs)
 
         if (i // batch_size + 1) % 10 == 0:
             print(f"  Processed {len(all_embs)}/{len(image_paths)} images...")
 
-    return np.array(all_embs, dtype='float32')
+    return np.array(all_embs, dtype="float32")

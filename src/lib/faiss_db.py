@@ -6,7 +6,6 @@ Builds, saves, loads, and searches FAISS indexes for image similarity.
 
 import os
 import pickle
-from pathlib import Path
 
 import faiss
 import numpy as np
@@ -26,7 +25,7 @@ class ImageVectorDB:
         self.image_paths = []
         self.dim = dim
 
-    def build_index(self, embeddings, image_paths, metric='ip'):
+    def build_index(self, embeddings, image_paths, metric="ip"):
         """
         Build FAISS index from embeddings.
 
@@ -41,16 +40,16 @@ class ImageVectorDB:
         self.image_paths = [str(p) for p in image_paths]
         self.dim = embeddings.shape[1]
 
-        if metric == 'ip':
+        if metric == "ip":
             # Inner Product on normalized vectors = Cosine Similarity
             self.index = faiss.IndexFlatIP(self.dim)
-        elif metric == 'l2':
+        elif metric == "l2":
             # L2 distance
             self.index = faiss.IndexFlatL2(self.dim)
         else:
             raise ValueError(f"Unknown metric: {metric}. Use 'ip' or 'l2'")
 
-        self.index.add(embeddings.astype('float32'))
+        self.index.add(embeddings.astype("float32"))
 
         print(f"Built FAISS index with {self.index.ntotal} vectors (dim={self.dim})")
         return self.index
@@ -70,7 +69,7 @@ class ImageVectorDB:
             raise RuntimeError("Index not built. Call build_index() first.")
 
         # Reshape to [1, dim] if needed
-        query_vec = np.array(query_embedding, dtype='float32')
+        query_vec = np.array(query_embedding, dtype="float32")
         if query_vec.ndim == 1:
             query_vec = query_vec.reshape(1, -1)
 
@@ -116,9 +115,7 @@ class ImageVectorDB:
         paths_path = f"{prefix}_paths.pkl"
 
         if not os.path.exists(index_path) or not os.path.exists(paths_path):
-            raise FileNotFoundError(
-                f"Index files not found: {index_path}, {paths_path}"
-            )
+            raise FileNotFoundError(f"Index files not found: {index_path}, {paths_path}")
 
         self.index = faiss.read_index(index_path)
 

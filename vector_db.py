@@ -18,14 +18,14 @@ This script:
   - saves index, words list, and the gensim model
   - allows querying nearest words for a given word
 """
-import os
-import argparse
-import pickle
-from typing import List
 
+import argparse
+import os
+import pickle
+
+import faiss
 import numpy as np
 from gensim.models import Word2Vec
-import faiss
 
 # Small demo corpus. Replace or load your own corpus for better results.
 DEMO_CORPUS = [
@@ -38,15 +38,26 @@ DEMO_CORPUS = [
     "sun moon star sky planet orbit space",
     "coffee tea drink beverage mug cup",
     "city town village urban rural street",
-    "happy sad joy anger emotion feeling"
+    "happy sad joy anger emotion feeling",
 ]
 
 
-def train_word2vec(corpus: List[str], vector_size: int = 100, window: int = 5,
-                   min_count: int = 1, epochs: int = 50, workers: int = 1) -> Word2Vec:
+def train_word2vec(
+    corpus: list[str],
+    vector_size: int = 100,
+    window: int = 5,
+    min_count: int = 1,
+    epochs: int = 50,
+    workers: int = 1,
+) -> Word2Vec:
     sentences = [s.split() for s in corpus]
-    model = Word2Vec(sentences=sentences, vector_size=vector_size,
-                     window=window, min_count=min_count, workers=workers)
+    model = Word2Vec(
+        sentences=sentences,
+        vector_size=vector_size,
+        window=window,
+        min_count=min_count,
+        workers=workers,
+    )
     model.train(sentences, total_examples=len(sentences), epochs=epochs)
     return model
 
@@ -54,7 +65,7 @@ def train_word2vec(corpus: List[str], vector_size: int = 100, window: int = 5,
 def build_faiss_index(model: Word2Vec, out_prefix: str):
     words = model.wv.index_to_key  # list of words in order
     d = model.wv.vector_size
-    vectors = np.stack([model.wv.get_vector(w) for w in words]).astype('float32')
+    vectors = np.stack([model.wv.get_vector(w) for w in words]).astype("float32")
 
     index = faiss.IndexFlatL2(d)
     index.add(vectors)
@@ -94,7 +105,7 @@ def query(word: str, out_prefix: str, k: int = 5):
         print(f"Word '{word}' not in vocabulary.")
         return
 
-    vec = model.wv.get_vector(word).astype('float32').reshape(1, -1)
+    vec = model.wv.get_vector(word).astype("float32").reshape(1, -1)
     index, words = load_index_and_words(out_prefix)
 
     k = min(k, index.ntotal)
@@ -118,7 +129,9 @@ def main():
 
     p_query = sub.add_parser("query", help="Query nearest words")
     p_query.add_argument("--word", required=True, help="Word to query")
-    p_query.add_argument("--out-prefix", default="word_index", help="Prefix used when building the index")
+    p_query.add_argument(
+        "--out-prefix", default="word_index", help="Prefix used when building the index"
+    )
     p_query.add_argument("--k", type=int, default=5, help="Number of neighbors to return")
 
     args = parser.parse_args()
