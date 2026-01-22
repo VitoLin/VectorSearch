@@ -13,6 +13,9 @@ wheels/
 .vscode/
 .env
 
+# Type checking and linting caches
+.*_cache/
+
 # Ignore Project artifacts
 *.index
 data/
