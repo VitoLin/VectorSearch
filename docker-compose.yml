@@ -1,0 +1,23 @@
+services:
+  vectorsearch:
+    build: .
+    volumes:
+      # Mount local data folder for images and databases
+      - ./data:/app/data
+      # Mount output folder for index files
+      - ./outputs:/app/outputs
+    environment:
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+
+  # Service for running Jupyter notebooks
+  jupyter:
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+      - ./examples:/app/examples
+    command: uv run jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root

@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+venv
+.venv
+
+# IDE
+.vscode
+.idea
+
+# Environment
+.env
+
+# Cache
+.ruff_cache
+.mypy_cache
+.pytest_cache
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+
+# Test
+tests
+
+# Examples
+examples
+
+# Lock file (copied separately in Dockerfile)
+uv.lock
